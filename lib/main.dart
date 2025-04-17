@@ -1,6 +1,6 @@
 import 'dart:async';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_picker/flutter_picker.dart';
 
 import 'models/workout.dart';
 import 'screens/timer.dart';
@@ -132,128 +132,124 @@ class _TimerSettingsState extends State<TimerSettings> {
   Duration _preparationLength = const Duration(seconds: 30);
   int _numOfRounds = 12;
 
+  void _showDurationPicker({
+    required String title,
+    required Duration initial,
+    required int maxMinutes,
+    required int secondStep,
+    required Function(Duration) onConfirm,
+  }) {
+    int selectedMinutes = initial.inMinutes;
+    int selectedSeconds = initial.inSeconds % 60;
+
+    showModalBottomSheet(
+      context: context,
+      builder: (_) => SizedBox(
+        height: 300,
+        child: Column(
+          children: [
+            Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            Expanded(
+              child: Row(
+                children: [
+                  Expanded(
+                    child: CupertinoPicker(
+                      itemExtent: 40,
+                      scrollController:
+                          FixedExtentScrollController(initialItem: selectedMinutes),
+                      onSelectedItemChanged: (value) {
+                        selectedMinutes = value;
+                      },
+                      children: List.generate(maxMinutes + 1, (i) => Text('$i min')),
+                    ),
+                  ),
+                  Expanded(
+                    child: CupertinoPicker(
+                      itemExtent: 40,
+                      scrollController: FixedExtentScrollController(initialItem: selectedSeconds ~/ secondStep),
+                      onSelectedItemChanged: (value) {
+                        selectedSeconds = value * secondStep;
+                      },
+                      children: List.generate(60 ~/ secondStep, (i) => Text('${i * secondStep} sec')),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            ElevatedButton(
+              child: const Text('Confirm'),
+              onPressed: () {
+                onConfirm(Duration(minutes: selectedMinutes, seconds: selectedSeconds));
+                Navigator.pop(context);
+              },
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
   void _pickRoundLength(BuildContext context) {
-    Picker(
-      adapter: NumberPickerAdapter(data: [
-        NumberPickerColumn(
-          begin: 0,
-          end: 10,
-          initValue: _roundLength.inMinutes.remainder(60),
-          jump: 1,
-        ),
-        NumberPickerColumn(
-          begin: 0,
-          end: 45,
-          initValue: _roundLength.inSeconds.remainder(60),
-          jump: 15,
-        ),
-      ]),
-      delimiter: [
-        PickerDelimiter(
-          child: Container(
-            width: 30.0,
-            alignment: Alignment.center,
-            child: const Icon(Icons.more_vert),
-          ),
-        )
-      ],
-      hideHeader: true,
-      title: const Text('Round Length'),
-      onConfirm: (Picker picker, List value) {
-        final List<int> values = picker.getSelectedValues().cast<int>();
-        setState(() {
-          _roundLength = Duration(minutes: values[0], seconds: values[1]);
-        });
-      },
-    ).showDialog(context);
+    _showDurationPicker(
+      title: 'Round Length',
+      initial: _roundLength,
+      maxMinutes: 10,
+      secondStep: 15,
+      onConfirm: (duration) => setState(() => _roundLength = duration),
+    );
   }
 
   void _pickBreakLength(BuildContext context) {
-    Picker(
-      adapter: NumberPickerAdapter(data: [
-        NumberPickerColumn(
-          begin: 0,
-          end: 10,
-          initValue: _breakLength.inMinutes.remainder(60),
-          jump: 1,
-        ),
-        NumberPickerColumn(
-          begin: 0,
-          end: 55,
-          initValue: _breakLength.inSeconds.remainder(60),
-          jump: 5,
-        ),
-      ]),
-      delimiter: [
-        PickerDelimiter(
-          child: Container(
-            width: 30.0,
-            alignment: Alignment.center,
-            child: const Icon(Icons.more_vert),
-          ),
-        )
-      ],
-      hideHeader: true,
-      title: const Text('Break Length'),
-      onConfirm: (Picker picker, List value) {
-        final List<int> values = picker.getSelectedValues().cast<int>();
-        setState(() {
-          _breakLength = Duration(minutes: values[0], seconds: values[1]);
-        });
-      },
-    ).showDialog(context);
+    _showDurationPicker(
+      title: 'Break Length',
+      initial: _breakLength,
+      maxMinutes: 10,
+      secondStep: 5,
+      onConfirm: (duration) => setState(() => _breakLength = duration),
+    );
   }
 
   void _pickGetReadyLength(BuildContext context) {
-    Picker(
-      adapter: NumberPickerAdapter(data: [
-        NumberPickerColumn(begin: 0, end: 0),
-        NumberPickerColumn(
-          begin: 0,
-          end: 60,
-          initValue: _preparationLength.inSeconds.remainder(60),
-          jump: 5,
-        ),
-      ]),
-      delimiter: [
-        PickerDelimiter(
-          child: Container(
-            width: 30.0,
-            alignment: Alignment.center,
-            child: const Icon(Icons.more_vert),
-          ),
-        )
-      ],
-      hideHeader: true,
-      title: const Text('Get Ready'),
-      onConfirm: (Picker picker, List value) {
-        final List<int> values = picker.getSelectedValues().cast<int>();
-        setState(() {
-          _preparationLength =
-              Duration(minutes: values[0], seconds: values[1]);
-        });
-      },
-    ).showDialog(context);
+    _showDurationPicker(
+      title: 'Get Ready',
+      initial: _preparationLength,
+      maxMinutes: 0,
+      secondStep: 5,
+      onConfirm: (duration) => setState(() => _preparationLength = duration),
+    );
   }
 
   void _pickNumOfRounds(BuildContext context) {
-    Picker(
-      adapter: NumberPickerAdapter(data: [
-        NumberPickerColumn(
-          begin: 1,
-          end: 100,
-          initValue: _numOfRounds,
-          jump: 1,
+    int selected = _numOfRounds;
+
+    showModalBottomSheet(
+      context: context,
+      builder: (_) => SizedBox(
+        height: 250,
+        child: Column(
+          children: [
+            const Text('Number of Rounds'),
+            Expanded(
+              child: CupertinoPicker(
+                itemExtent: 40,
+                scrollController: FixedExtentScrollController(initialItem: selected - 1),
+                onSelectedItemChanged: (value) {
+                  selected = value + 1;
+                },
+                children: List.generate(100, (i) => Text('${i + 1}')),
+              ),
+            ),
+            ElevatedButton(
+              child: const Text('Confirm'),
+              onPressed: () {
+                setState(() => _numOfRounds = selected);
+                Navigator.pop(context);
+              },
+            )
+          ],
         ),
-      ]),
-      hideHeader: true,
-      title: const Text('Number Of Rounds'),
-      onConfirm: (Picker picker, List value) {
-        setState(() {
-          _numOfRounds = picker.getSelectedValues()[0];
-        });
-      },
-    ).showDialog(context);
+      ),
+    );
   }
 
   String _formatTime(Duration time) {

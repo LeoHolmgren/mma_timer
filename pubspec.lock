@@ -118,15 +118,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.14.3"
-  flutter_picker:
-    dependency: "direct main"
-    description:
-      path: "."
-      ref: HEAD
-      resolved-ref: c47b3d53e94cee651d82e6feac0fa3c3ec8d63bc
-      url: "https://github.com/yangyxd/flutter_picker.git"
-    source: git
-    version: "2.1.1"
   flutter_test:
     dependency: "direct dev"
     description: flutter

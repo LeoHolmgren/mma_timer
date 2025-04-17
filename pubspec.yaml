@@ -24,9 +24,6 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.0
-  flutter_picker:
-    git:
-      url: https://github.com/yangyxd/flutter_picker.git
   percent_indicator: ^4.2.5
   soundpool: ^2.4.1
 
