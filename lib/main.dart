@@ -1,11 +1,10 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_picker/flutter_picker.dart';
 
 import 'models/workout.dart';
 import 'screens/timer.dart';
-import 'widgets/filled_button.dart';
+import 'widgets/filled_button.dart' as custom;
 import 'widgets/blink.dart';
 
 void main() {
@@ -20,15 +19,15 @@ class BoxingTimer extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         fontFamily: 'SF Pro Display',
-        primaryColor: Color.fromRGBO(22, 100, 253, 1),
-        backgroundColor: Colors.white,
+        primaryColor: const Color.fromRGBO(22, 100, 253, 1),
+        scaffoldBackgroundColor: Colors.white,
         visualDensity: VisualDensity.adaptivePlatformDensity,
-        appBarTheme: Theme.of(context).appBarTheme.copyWith(
-              brightness: Brightness.light,
-              elevation: 0,
-              color: Colors.white,
-              iconTheme: IconThemeData(color: Colors.black),
-            ),
+        appBarTheme: AppBarTheme(
+          backgroundColor: Colors.white,
+          elevation: 0,
+          iconTheme: const IconThemeData(color: Colors.black),
+          titleTextStyle: const TextStyle(color: Colors.black, fontSize: 20),
+        ),
       ),
       home: SplashScreen(),
     );
@@ -42,8 +41,8 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen>
     with SingleTickerProviderStateMixin {
-  AnimationController _animationController;
-  Animation<int> _characterCount;
+  late AnimationController _animationController;
+  late Animation<int> _characterCount;
   String _currentString = 'Minimalist Boxing Timer';
 
   @override
@@ -55,18 +54,17 @@ class _SplashScreenState extends State<SplashScreen>
       vsync: this,
     );
 
-    setState(() {
-      _characterCount = StepTween(begin: 0, end: _currentString.length)
-          .animate(CurvedAnimation(
+    _characterCount = StepTween(begin: 0, end: _currentString.length).animate(
+      CurvedAnimation(
         parent: _animationController,
         curve: Curves.easeIn,
-      ));
-    });
+      ),
+    );
 
     _animationController.forward();
 
     Timer(
-      Duration(seconds: 4),
+      const Duration(seconds: 4),
       () => Navigator.pushReplacement(
         context,
         PageRouteBuilder(
@@ -91,8 +89,6 @@ class _SplashScreenState extends State<SplashScreen>
       decoration: TextDecoration.none,
     );
 
-    if (_characterCount == null) return SizedBox.shrink();
-
     return Container(
       color: Colors.white,
       child: Column(
@@ -109,7 +105,7 @@ class _SplashScreenState extends State<SplashScreen>
                   Blink(
                     child: Text(
                       '_',
-                      style: textStyle.apply(color: Color(0xFF007AFF)),
+                      style: textStyle.apply(color: const Color(0xFF007AFF)),
                     ),
                     duration: const Duration(milliseconds: 250),
                   )
@@ -117,8 +113,8 @@ class _SplashScreenState extends State<SplashScreen>
               );
             },
           ),
-          SizedBox(height: 24),
-          Icon(Icons.timer, size: 64),
+          const SizedBox(height: 24),
+          const Icon(Icons.timer, size: 64),
         ],
       ),
     );
@@ -131,9 +127,9 @@ class TimerSettings extends StatefulWidget {
 }
 
 class _TimerSettingsState extends State<TimerSettings> {
-  Duration _roundLength = Duration(minutes: 2);
-  Duration _breakLength = Duration(seconds: 30);
-  Duration _preparationLength = Duration(seconds: 30);
+  Duration _roundLength = const Duration(minutes: 2);
+  Duration _breakLength = const Duration(seconds: 30);
+  Duration _preparationLength = const Duration(seconds: 30);
   int _numOfRounds = 12;
 
   void _pickRoundLength(BuildContext context) {
@@ -157,14 +153,14 @@ class _TimerSettingsState extends State<TimerSettings> {
           child: Container(
             width: 30.0,
             alignment: Alignment.center,
-            child: Icon(Icons.more_vert),
+            child: const Icon(Icons.more_vert),
           ),
         )
       ],
       hideHeader: true,
-      title: Text('Round Length'),
+      title: const Text('Round Length'),
       onConfirm: (Picker picker, List value) {
-        final List<int> values = picker.getSelectedValues();
+        final List<int> values = picker.getSelectedValues().cast<int>();
         setState(() {
           _roundLength = Duration(minutes: values[0], seconds: values[1]);
         });
@@ -193,14 +189,14 @@ class _TimerSettingsState extends State<TimerSettings> {
           child: Container(
             width: 30.0,
             alignment: Alignment.center,
-            child: Icon(Icons.more_vert),
+            child: const Icon(Icons.more_vert),
           ),
         )
       ],
       hideHeader: true,
-      title: Text('Break Length'),
+      title: const Text('Break Length'),
       onConfirm: (Picker picker, List value) {
-        final List<int> values = picker.getSelectedValues();
+        final List<int> values = picker.getSelectedValues().cast<int>();
         setState(() {
           _breakLength = Duration(minutes: values[0], seconds: values[1]);
         });
@@ -224,16 +220,17 @@ class _TimerSettingsState extends State<TimerSettings> {
           child: Container(
             width: 30.0,
             alignment: Alignment.center,
-            child: Icon(Icons.more_vert),
+            child: const Icon(Icons.more_vert),
           ),
         )
       ],
       hideHeader: true,
-      title: Text('Get Ready'),
+      title: const Text('Get Ready'),
       onConfirm: (Picker picker, List value) {
-        final List<int> values = picker.getSelectedValues();
+        final List<int> values = picker.getSelectedValues().cast<int>();
         setState(() {
-          _preparationLength = Duration(minutes: values[0], seconds: values[1]);
+          _preparationLength =
+              Duration(minutes: values[0], seconds: values[1]);
         });
       },
     ).showDialog(context);
@@ -241,18 +238,16 @@ class _TimerSettingsState extends State<TimerSettings> {
 
   void _pickNumOfRounds(BuildContext context) {
     Picker(
-      adapter: NumberPickerAdapter(
-        data: [
-          NumberPickerColumn(
-            begin: 1,
-            end: 100,
-            initValue: _numOfRounds,
-            jump: 1,
-          ),
-        ],
-      ),
+      adapter: NumberPickerAdapter(data: [
+        NumberPickerColumn(
+          begin: 1,
+          end: 100,
+          initValue: _numOfRounds,
+          jump: 1,
+        ),
+      ]),
       hideHeader: true,
-      title: new Text('Number Of Rounds'),
+      title: const Text('Number Of Rounds'),
       onConfirm: (Picker picker, List value) {
         setState(() {
           _numOfRounds = picker.getSelectedValues()[0];
@@ -292,25 +287,21 @@ class _TimerSettingsState extends State<TimerSettings> {
     );
 
     if (!workout.isValid()) {
-      Widget okButton = FlatButton(
-        child: Text('OK'),
+      Widget okButton = TextButton(
+        child: const Text('OK'),
         onPressed: () => Navigator.pop(context),
       );
 
       AlertDialog alert = AlertDialog(
-        title: Text('Round Length'),
-        content: Text('Please select round length'),
-        actions: [
-          okButton,
-        ],
+        title: const Text('Round Length'),
+        content: const Text('Please select round length'),
+        actions: [okButton],
       );
 
       showDialog(context: context, builder: (_) => alert);
-
       return;
     }
 
-    // Start the workout
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -323,7 +314,7 @@ class _TimerSettingsState extends State<TimerSettings> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           'Boxing Timer',
           style: TextStyle(
             color: Colors.black,
@@ -333,91 +324,48 @@ class _TimerSettingsState extends State<TimerSettings> {
         ),
       ),
       body: Container(
-        color: Colors.white,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-          child: Column(
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: <Widget>[
-                  Text('Round Length', style: labelStyle),
-                  PickerButton(
-                    onPressed: () {
-                      _pickRoundLength(context);
-                    },
-                    child: Text(_formatTime(_roundLength)),
-                  ),
-                ],
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: <Widget>[
-                  Text('Break Length', style: labelStyle),
-                  PickerButton(
-                    onPressed: () {
-                      _pickBreakLength(context);
-                    },
-                    child: Text(_formatTime(_breakLength)),
-                  ),
-                ],
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: <Widget>[
-                  Text('Preparation Time', style: labelStyle),
-                  PickerButton(
-                    onPressed: () {
-                      _pickGetReadyLength(context);
-                    },
-                    child: Text(_formatTime(_preparationLength)),
-                  ),
-                ],
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: <Widget>[
-                  Text('Number Of Rounds', style: labelStyle),
-                  PickerButton(
-                    onPressed: () {
-                      _pickNumOfRounds(context);
-                    },
-                    child: Text(_numOfRounds.toString()),
-                  ),
-                ],
-              ),
-              Spacer(flex: 1),
-              Text(
-                'Workout',
-                style: TextStyle(fontWeight: FontWeight.w700, fontSize: 22),
-              ),
-              Text(
-                _workoutLengthLabel(),
-                style: TextStyle(fontWeight: FontWeight.w700, fontSize: 80),
-              ),
-              Text(
-                _secondaryLabel(),
-                style: TextStyle(fontSize: 20),
-              ),
-              Spacer(flex: 1),
-              SafeArea(
-                child: Container(
-                  padding: EdgeInsets.only(bottom: 8.0),
-                  child: FilledButton(
-                    label: 'START',
-                    color: Theme.of(context).primaryColor,
-                    onPressed: startWorkout,
-                  ),
+        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+        child: Column(
+          children: [
+            buildSettingRow('Round Length', _formatTime(_roundLength),
+                () => _pickRoundLength(context)),
+            buildSettingRow('Break Length', _formatTime(_breakLength),
+                () => _pickBreakLength(context)),
+            buildSettingRow('Preparation Time',
+                _formatTime(_preparationLength), () => _pickGetReadyLength(context)),
+            buildSettingRow('Number Of Rounds', '$_numOfRounds',
+                () => _pickNumOfRounds(context)),
+            const Spacer(),
+            const Text('Workout',
+                style: TextStyle(fontWeight: FontWeight.w700, fontSize: 22)),
+            Text(_workoutLengthLabel(),
+                style:
+                    const TextStyle(fontWeight: FontWeight.w700, fontSize: 80)),
+            Text(_secondaryLabel(), style: const TextStyle(fontSize: 20)),
+            const Spacer(),
+            SafeArea(
+              child: Container(
+                padding: const EdgeInsets.only(bottom: 8.0),
+                child: custom.FilledButton(
+                  label: 'START',
+                  color: Theme.of(context).primaryColor,
+                  onPressed: startWorkout,
                 ),
-              )
-            ],
-          ),
+              ),
+            )
+          ],
         ),
       ),
+    );
+  }
+
+  Widget buildSettingRow(String label, String value, VoidCallback onPressed) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(label, style: labelStyle),
+        PickerButton(onPressed: onPressed, child: Text(value)),
+      ],
     );
   }
 }
@@ -428,20 +376,25 @@ const labelStyle = TextStyle(
 );
 
 class PickerButton extends StatelessWidget {
-  final Function onPressed;
+  final VoidCallback onPressed;
   final Widget child;
 
-  const PickerButton({Key key, @required this.onPressed, @required this.child})
-      : super(key: key);
+  const PickerButton({
+    Key? key,
+    required this.onPressed,
+    required this.child,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return RaisedButton(
+    return ElevatedButton(
       onPressed: onPressed,
       child: child,
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8.0),
+      style: ElevatedButton.styleFrom(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8.0),
+        ),
+        elevation: 0,
       ),
     );
   }

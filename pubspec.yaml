@@ -1,5 +1,5 @@
-name: boxing_timer
-description: A minimalist boxing timer
+name: mma_timer
+description: A minimalist mma timer
 
 # The following line prevents the package from being accidentally published to
 # pub.dev using `pub publish`. This is preferred for private packages.
@@ -18,19 +18,20 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 1.0.0+1
 
 environment:
-  sdk: ">=2.9.0 <3.0.0"
+  sdk: ">=2.12.0 <3.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.0
   flutter_picker:
-    git: git://github.com/yangyxd/flutter_picker.git
-  percent_indicator: ^2.1.6
-  soundpool: ^1.1.2
+    git:
+      url: https://github.com/yangyxd/flutter_picker.git
+  percent_indicator: ^4.2.5
+  soundpool: ^2.4.1
 
 dev_dependencies:
-  flutter_launcher_icons: ^0.8.0
+  flutter_launcher_icons: ^0.14.3
   flutter_test:
     sdk: flutter
 

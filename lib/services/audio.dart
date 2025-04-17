@@ -2,15 +2,15 @@ import 'package:soundpool/soundpool.dart';
 import 'package:flutter/services.dart';
 
 class Audio {
-  Soundpool _soundpool;
-  Map<String, Future<int>> _cache;
+  late Soundpool _soundpool;
+  late Map<String, Future<int>> _cache;
 
   static const String RING_BELL_1 = 'assets/sounds/ring_bell1.wav';
   static const String RING_BELL_2 = 'assets/sounds/ring_bell2.wav';
   static const String RING_BELL_3 = 'assets/sounds/ring_bell3.wav';
 
   Audio() {
-    _soundpool = Soundpool(streamType: StreamType.notification);
+    _soundpool = Soundpool.fromOptions(options: SoundpoolOptions(streamType: StreamType.notification));
 
     // buffer sounds
     _cache = Map();
@@ -30,7 +30,12 @@ class Audio {
   }
 
   Future<void> play(String cachedAsset) async {
-    await _playSound(_cache[cachedAsset]);
+    var soundId = _cache[cachedAsset];
+    if (soundId != null) {
+      await _playSound(soundId);
+    } else {
+      throw ArgumentError('Sound not found for asset: $cachedAsset');
+    }
   }
 
   Future<void> dispose() async {

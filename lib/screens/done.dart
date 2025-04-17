@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../widgets/filled_button.dart';
+import '../widgets/filled_button.dart' as custom;
 
 class DoneScreen extends StatefulWidget {
   @override
@@ -8,8 +8,8 @@ class DoneScreen extends StatefulWidget {
 
 class _DoneScreenState extends State<DoneScreen>
     with SingleTickerProviderStateMixin {
-  AnimationController _animationController;
-  Animation _animation;
+  late AnimationController _animationController;
+  late Animation _animation;
 
   @override
   void initState() {
@@ -97,7 +97,7 @@ class _DoneScreenState extends State<DoneScreen>
             SafeArea(
               child: Padding(
                 padding: const EdgeInsets.only(bottom: 16),
-                child: FilledButton(
+                child: custom.FilledButton (
                   label: 'DONE',
                   color: const Color.fromRGBO(43, 204, 113, 1),
                   onPressed: () {

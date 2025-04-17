@@ -4,21 +4,20 @@ import 'package:percent_indicator/percent_indicator.dart';
 import '../widgets/stopwatch_button.dart';
 
 class AnimatedCountdown extends StatefulWidget {
-  final UniqueKey key;
   final Duration duration;
-  final Function onComplete;
+  final VoidCallback onComplete;
   final String title;
   final String subtitle;
   final Color color;
 
-  AnimatedCountdown({
-    this.key,
-    this.duration,
-    this.title,
-    this.subtitle,
-    this.color,
-    this.onComplete,
-  });
+  const AnimatedCountdown({
+    Key? key,
+    required this.duration,
+    required this.onComplete,
+    required this.title,
+    required this.subtitle,
+    required this.color,
+  }) : super(key: key);
 
   @override
   _AnimatedCountdownState createState() => _AnimatedCountdownState();
@@ -26,7 +25,7 @@ class AnimatedCountdown extends StatefulWidget {
 
 class _AnimatedCountdownState extends State<AnimatedCountdown>
     with TickerProviderStateMixin {
-  AnimationController _controller;
+  late AnimationController _controller;
   bool isRunning = true;
 
   @override
@@ -37,11 +36,11 @@ class _AnimatedCountdownState extends State<AnimatedCountdown>
       vsync: this,
       duration: widget.duration,
     );
-    _controller.addStatusListener(this.statusListener);
+    _controller.addStatusListener(statusListener);
     _controller.forward();
   }
 
-  statusListener(status) {
+  void statusListener(AnimationStatus status) {
     if (status == AnimationStatus.completed) {
       widget.onComplete();
     }
@@ -49,7 +48,7 @@ class _AnimatedCountdownState extends State<AnimatedCountdown>
 
   @override
   void dispose() {
-    _controller.removeStatusListener(this.statusListener);
+    _controller.removeStatusListener(statusListener);
     _controller.dispose();
     super.dispose();
   }
@@ -73,7 +72,7 @@ class _AnimatedCountdownState extends State<AnimatedCountdown>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.subtitle, style: TextStyle(color: Colors.black)),
+        title: Text(widget.subtitle, style: const TextStyle(color: Colors.black)),
       ),
       body: Container(
         color: Colors.white,
@@ -82,7 +81,7 @@ class _AnimatedCountdownState extends State<AnimatedCountdown>
           children: [
             Text(
               widget.title,
-              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 56),
+              style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 56),
             ),
             Padding(
               padding: const EdgeInsets.only(top: 40, bottom: 40),
@@ -110,7 +109,7 @@ class _AnimatedCountdownState extends State<AnimatedCountdown>
                         onPressed: onPause,
                       ),
                     ),
-                    SizedBox(width: 24.0),
+                    const SizedBox(width: 24.0),
                     SizedBox(
                       width: 140,
                       height: 40,
@@ -137,10 +136,10 @@ class Countdown extends AnimatedWidget {
   final Color color;
 
   const Countdown({
-    Key key,
-    this.duration,
-    this.animation,
-    this.color,
+    Key? key,
+    required this.duration,
+    required this.animation,
+    required this.color,
   }) : super(key: key, listenable: animation);
 
   String _timerText() {
@@ -166,12 +165,12 @@ class Countdown extends AnimatedWidget {
           (duration.inMilliseconds - animation.value) / duration.inMilliseconds,
       center: Text(
         _timerText(),
-        style: TextStyle(fontWeight: FontWeight.w700, fontSize: 80),
+        style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 80),
       ),
-      backgroundColor: Colors.grey[300],
+      backgroundColor: Colors.grey[300] ?? Colors.grey,
       circularStrokeCap: CircularStrokeCap.round,
       linearGradient: LinearGradient(
-        colors: [Color.fromRGBO(190, 130, 255, 1.0), color],
+        colors: [const Color.fromRGBO(190, 130, 255, 1.0), color],
       ),
     );
   }

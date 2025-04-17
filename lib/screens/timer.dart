@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
-
 import '../models/workout.dart';
 import '../services/audio.dart';
 import '../widgets/countdown.dart';
@@ -19,8 +17,8 @@ class TimerScreen extends StatefulWidget {
 
 class _TimerScreenState extends State<TimerScreen> {
   int currentRound = 1;
-  WorkoutPhase activePhase;
-  Audio audio;
+  late WorkoutPhase activePhase;
+  late Audio audio;
 
   @override
   void initState() {

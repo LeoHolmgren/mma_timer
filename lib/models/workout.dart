@@ -7,10 +7,10 @@ class WorkoutModel {
   int numOfRounds;
 
   WorkoutModel({
-    this.roundLength,
-    this.breakLength,
-    this.preparationLength,
-    this.numOfRounds,
+    required this.roundLength,
+    required this.breakLength,
+    required this.preparationLength,
+    required this.numOfRounds,
   });
 
   bool isValid() {
