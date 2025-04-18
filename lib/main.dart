@@ -89,37 +89,47 @@ class _SplashScreenState extends State<SplashScreen>
       decoration: TextDecoration.none,
     );
 
-    return Container(
-      color: Colors.white,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          AnimatedBuilder(
-            animation: _characterCount,
-            builder: (context, child) {
-              String text = _currentString.substring(0, _characterCount.value);
-              return Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(text, style: textStyle),
-                  Blink(
-                    child: Text(
-                      '_',
-                      style: textStyle.apply(color: const Color(0xFF007AFF)),
-                    ),
-                    duration: const Duration(milliseconds: 250),
-                  )
-                ],
-              );
-            },
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 500),
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                AnimatedBuilder(
+                  animation: _characterCount,
+                  builder: (context, child) {
+                    String text =
+                        _currentString.substring(0, _characterCount.value);
+                    return Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(text, style: textStyle),
+                        Blink(
+                          child: Text(
+                            '_',
+                            style: textStyle.apply(color: const Color(0xFF007AFF)),
+                          ),
+                          duration: const Duration(milliseconds: 250),
+                        )
+                      ],
+                    );
+                  },
+                ),
+                const SizedBox(height: 24),
+                const Icon(Icons.timer, size: 64),
+              ],
+            ),
           ),
-          const SizedBox(height: 24),
-          const Icon(Icons.timer, size: 64),
-        ],
+        ),
       ),
     );
   }
 }
+
 
 class TimerSettings extends StatefulWidget {
   @override
@@ -319,41 +329,59 @@ class _TimerSettingsState extends State<TimerSettings> {
           ),
         ),
       ),
-      body: Container(
-        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-        child: Column(
-          children: [
-            buildSettingRow('Round Length', _formatTime(_roundLength),
-                () => _pickRoundLength(context)),
-            buildSettingRow('Break Length', _formatTime(_breakLength),
-                () => _pickBreakLength(context)),
-            buildSettingRow('Preparation Time',
-                _formatTime(_preparationLength), () => _pickGetReadyLength(context)),
-            buildSettingRow('Number Of Rounds', '$_numOfRounds',
-                () => _pickNumOfRounds(context)),
-            const Spacer(),
-            const Text('Workout',
-                style: TextStyle(fontWeight: FontWeight.w700, fontSize: 22)),
-            Text(_workoutLengthLabel(),
-                style:
-                    const TextStyle(fontWeight: FontWeight.w700, fontSize: 80)),
-            Text(_secondaryLabel(), style: const TextStyle(fontSize: 20)),
-            const Spacer(),
-            SafeArea(
-              child: Container(
-                padding: const EdgeInsets.only(bottom: 8.0),
-                child: custom.FilledButton(
-                  label: 'START',
-                  color: Theme.of(context).primaryColor,
-                  onPressed: startWorkout,
-                ),
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 500),
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 24),
+              child: Column(
+                children: [
+                  buildSettingRow('Round Length', _formatTime(_roundLength),
+                      () => _pickRoundLength(context)),
+                  buildSettingRow('Break Length', _formatTime(_breakLength),
+                      () => _pickBreakLength(context)),
+                  buildSettingRow('Preparation Time',
+                      _formatTime(_preparationLength),
+                      () => _pickGetReadyLength(context)),
+                  buildSettingRow('Number Of Rounds', '$_numOfRounds',
+                      () => _pickNumOfRounds(context)),
+                  const SizedBox(height: 32),
+                  const Text(
+                    'Workout',
+                    style: TextStyle(fontWeight: FontWeight.w700, fontSize: 22),
+                  ),
+                  Text(
+                    _workoutLengthLabel(),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 80,
+                    ),
+                  ),
+                  Text(
+                    _secondaryLabel(),
+                    style: const TextStyle(fontSize: 20),
+                  ),
+                  const SizedBox(height: 32),
+                  SafeArea(
+                    child: SizedBox(
+                      width: double.infinity,
+                      child: custom.FilledButton(
+                        label: 'START',
+                        color: Theme.of(context).primaryColor,
+                        onPressed: startWorkout,
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            )
-          ],
+            ),
+          ),
         ),
       ),
     );
   }
+
 
   Widget buildSettingRow(String label, String value, VoidCallback onPressed) {
     return Row(

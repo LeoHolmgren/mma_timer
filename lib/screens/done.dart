@@ -85,7 +85,7 @@ class _DoneScreenState extends State<DoneScreen>
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 48),
                       child: Text(
-                        'You have completed all exercises. Cool down and stretch all major muscle groups.',
+                        'You have completed all exercises. Good Job! Regards /Leo.',
                         style: TextStyle(fontSize: 18),
                         textAlign: TextAlign.center,
                       ),
