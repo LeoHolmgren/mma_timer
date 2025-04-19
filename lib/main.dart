@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
+import 'services/presets.dart';
 import 'models/workout.dart';
 import 'screens/timer.dart';
 import 'widgets/filled_button.dart' as custom;
@@ -141,6 +142,7 @@ class _TimerSettingsState extends State<TimerSettings> {
   Duration _breakLength = const Duration(seconds: 30);
   Duration _preparationLength = const Duration(seconds: 30);
   int _numOfRounds = 12;
+  Preset? _selectedPreset; // Define _selectedPreset
 
   void _showDurationPicker({
     required String title,
@@ -337,6 +339,30 @@ class _TimerSettingsState extends State<TimerSettings> {
               padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 24),
               child: Column(
                 children: [
+                  DropdownButton<Preset>(
+                    isExpanded: true,
+                    hint: const Text("Select a preset"),
+                    value: _selectedPreset,
+                    onChanged: (preset) {
+                      if (preset != null) {
+                        setState(() {
+                          _selectedPreset = preset;
+                          _roundLength = preset.model.roundLength;
+                          _breakLength = preset.model.breakLength;
+                          _preparationLength = preset.model.preparationLength;
+                          _numOfRounds = preset.model.numOfRounds;
+                        });
+                      }
+                    },
+                    items: workoutPresets.map((preset) {
+                      return DropdownMenuItem<Preset>(
+                        value: preset,
+                        child: Text(preset.name),
+                      );
+                    }).toList(),
+                  ),
+                  const SizedBox(height: 24),
+
                   buildSettingRow('Round Length', _formatTime(_roundLength),
                       () => _pickRoundLength(context)),
                   buildSettingRow('Break Length', _formatTime(_breakLength),
