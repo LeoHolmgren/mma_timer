@@ -131,7 +131,6 @@ class _SplashScreenState extends State<SplashScreen>
   }
 }
 
-
 class TimerSettings extends StatefulWidget {
   @override
   _TimerSettingsState createState() => _TimerSettingsState();
@@ -142,7 +141,7 @@ class _TimerSettingsState extends State<TimerSettings> {
   Duration _breakLength = const Duration(seconds: 30);
   Duration _preparationLength = const Duration(seconds: 30);
   int _numOfRounds = 12;
-  Preset? _selectedPreset; // Define _selectedPreset
+  Preset? _selectedPreset;
 
   void _showDurationPicker({
     required String title,
@@ -167,8 +166,7 @@ class _TimerSettingsState extends State<TimerSettings> {
                   Expanded(
                     child: CupertinoPicker(
                       itemExtent: 40,
-                      scrollController:
-                          FixedExtentScrollController(initialItem: selectedMinutes),
+                      scrollController: FixedExtentScrollController(initialItem: selectedMinutes),
                       onSelectedItemChanged: (value) {
                         selectedMinutes = value;
                       },
@@ -191,6 +189,7 @@ class _TimerSettingsState extends State<TimerSettings> {
             ElevatedButton(
               child: const Text('Confirm'),
               onPressed: () {
+                if (!mounted) return;
                 onConfirm(Duration(minutes: selectedMinutes, seconds: selectedSeconds));
                 Navigator.pop(context);
               },
@@ -254,6 +253,7 @@ class _TimerSettingsState extends State<TimerSettings> {
             ElevatedButton(
               child: const Text('Confirm'),
               onPressed: () {
+                if (!mounted) return;
                 setState(() => _numOfRounds = selected);
                 Navigator.pop(context);
               },
@@ -272,16 +272,14 @@ class _TimerSettingsState extends State<TimerSettings> {
   }
 
   String _workoutLengthLabel() {
-    final int workoutLengthInSeconds = _preparationLength.inSeconds +
+    final int totalSeconds = _preparationLength.inSeconds +
         _roundLength.inSeconds * _numOfRounds +
         _breakLength.inSeconds * (_numOfRounds - 1);
-    return _formatTime(Duration(seconds: workoutLengthInSeconds));
+    return _formatTime(Duration(seconds: totalSeconds));
   }
 
   String _secondaryLabel() {
-    final rest = _breakLength.inSeconds > 0
-        ? "${_breakLength.inSeconds} seconds rest"
-        : 'No rest';
+    final rest = _breakLength.inSeconds > 0 ? "${_breakLength.inSeconds} seconds rest" : 'No rest';
     final rounds = "$_numOfRounds ${_numOfRounds == 1 ? 'round' : 'rounds'}";
     return "$rest, $rounds";
   }
@@ -295,26 +293,20 @@ class _TimerSettingsState extends State<TimerSettings> {
     );
 
     if (!workout.isValid()) {
-      Widget okButton = TextButton(
-        child: const Text('OK'),
-        onPressed: () => Navigator.pop(context),
+      showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+          title: const Text('Round Length'),
+          content: const Text('Please select round length'),
+          actions: [TextButton(child: const Text('OK'), onPressed: () => Navigator.pop(context))],
+        ),
       );
-
-      AlertDialog alert = AlertDialog(
-        title: const Text('Round Length'),
-        content: const Text('Please select round length'),
-        actions: [okButton],
-      );
-
-      showDialog(context: context, builder: (_) => alert);
       return;
     }
 
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (context) => TimerScreen(workout),
-      ),
+      MaterialPageRoute(builder: (context) => TimerScreen(workout)),
     );
   }
 
@@ -322,14 +314,7 @@ class _TimerSettingsState extends State<TimerSettings> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Boxing Timer',
-          style: TextStyle(
-            color: Colors.black,
-            fontSize: 24.0,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
+        title: const Text('Boxing Timer', style: TextStyle(color: Colors.black, fontSize: 24.0, fontWeight: FontWeight.w600)),
       ),
       body: Center(
         child: ConstrainedBox(
@@ -339,55 +324,49 @@ class _TimerSettingsState extends State<TimerSettings> {
               padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 24),
               child: Column(
                 children: [
-                  DropdownButton<Preset>(
-                    isExpanded: true,
-                    hint: const Text("Select a preset"),
-                    value: _selectedPreset,
-                    onChanged: (preset) {
-                      if (preset != null) {
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 16),
+                    child: DropdownButtonFormField<Preset>(
+                      value: _selectedPreset,
+                      isExpanded: true,
+                      decoration: InputDecoration(
+                        labelText: "Select a preset",
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                      ),
+                      items: [
+                        const DropdownMenuItem<Preset>(
+                          value: null,
+                          child: Text("Custom"),
+                        ),
+                        ...workoutPresets.map((preset) {
+                          return DropdownMenuItem<Preset>(
+                            value: preset,
+                            child: Text(preset.name),
+                          );
+                        }),
+                      ],
+                      onChanged: (preset) {
                         setState(() {
                           _selectedPreset = preset;
-                          _roundLength = preset.model.roundLength;
-                          _breakLength = preset.model.breakLength;
-                          _preparationLength = preset.model.preparationLength;
-                          _numOfRounds = preset.model.numOfRounds;
+                          if (preset != null) {
+                            _roundLength = preset.model.roundLength;
+                            _breakLength = preset.model.breakLength;
+                            _preparationLength = preset.model.preparationLength;
+                            _numOfRounds = preset.model.numOfRounds;
+                          }
                         });
-                      }
-                    },
-                    items: workoutPresets.map((preset) {
-                      return DropdownMenuItem<Preset>(
-                        value: preset,
-                        child: Text(preset.name),
-                      );
-                    }).toList(),
-                  ),
-                  const SizedBox(height: 24),
-
-                  buildSettingRow('Round Length', _formatTime(_roundLength),
-                      () => _pickRoundLength(context)),
-                  buildSettingRow('Break Length', _formatTime(_breakLength),
-                      () => _pickBreakLength(context)),
-                  buildSettingRow('Preparation Time',
-                      _formatTime(_preparationLength),
-                      () => _pickGetReadyLength(context)),
-                  buildSettingRow('Number Of Rounds', '$_numOfRounds',
-                      () => _pickNumOfRounds(context)),
-                  const SizedBox(height: 32),
-                  const Text(
-                    'Workout',
-                    style: TextStyle(fontWeight: FontWeight.w700, fontSize: 22),
-                  ),
-                  Text(
-                    _workoutLengthLabel(),
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w700,
-                      fontSize: 80,
+                      },
                     ),
                   ),
-                  Text(
-                    _secondaryLabel(),
-                    style: const TextStyle(fontSize: 20),
-                  ),
+                  buildSettingRow('Round Length', _formatTime(_roundLength), () => _pickRoundLength(context)),
+                  buildSettingRow('Break Length', _formatTime(_breakLength), () => _pickBreakLength(context)),
+                  buildSettingRow('Preparation Time', _formatTime(_preparationLength), () => _pickGetReadyLength(context)),
+                  buildSettingRow('Number Of Rounds', '$_numOfRounds', () => _pickNumOfRounds(context)),
+                  const SizedBox(height: 32),
+                  const Text('Workout', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 22)),
+                  Text(_workoutLengthLabel(), style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 80)),
+                  Text(_secondaryLabel(), style: const TextStyle(fontSize: 20)),
                   const SizedBox(height: 32),
                   SafeArea(
                     child: SizedBox(
@@ -407,7 +386,6 @@ class _TimerSettingsState extends State<TimerSettings> {
       ),
     );
   }
-
 
   Widget buildSettingRow(String label, String value, VoidCallback onPressed) {
     return Row(
@@ -441,9 +419,7 @@ class PickerButton extends StatelessWidget {
       onPressed: onPressed,
       child: child,
       style: ElevatedButton.styleFrom(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8.0),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
         elevation: 0,
       ),
     );
